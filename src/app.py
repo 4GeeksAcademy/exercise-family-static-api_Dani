@@ -18,21 +18,9 @@ jackson_family = FamilyStructure("Jackson")
 
 
 initial_members = [
-    {
-        "first_name": "John",
-        "age": 33,
-        "lucky_numbers": [7, 13, 22]
-    },
-    {
-        "first_name": "Jane",
-        "age": 35,
-        "lucky_numbers": [10, 14, 3]
-    },
-    {
-        "first_name": "Jimmy",
-        "age": 5,
-        "lucky_numbers": [1]
-    }
+    {"first_name": "John", "age": 33, "lucky_numbers": [7, 13, 22]},
+    {"first_name": "Jane", "age": 35, "lucky_numbers": [10, 14, 3]},
+    {"first_name": "Jimmy", "age": 5, "lucky_numbers": [1]}
 ]
 
 for member in initial_members:
@@ -52,30 +40,40 @@ def sitemap():
     return generate_sitemap(app)
 
 
-@app.route('/members', methods=['GET'])
-def handle_hello():
+@app.route('/members/<int:id>', methods=['GET'])
+def get_member(id):
+    member = jackson_family.get_member_by_id(id)
+    if not member:
+        return jsonify({"error": "Member not found"}), 404
+    return jsonify(member), 200
 
-    # this is how you can use the Family datastructure by calling its methods
-    members = jackson_family.get_all_members()
-    response_body = {
-        "hello": "world",
-        "family": members
-
-    }
-
-    return jsonify(response_body), 200
 
 
 @app.route('/members', methods=['POST'])
 def new_member():
+    data = request.get_json()
+    if not data.get("first_name") or not data.get("age"):
+        return jsonify({"error": "Missing required fields"}), 400
 
     new_member = {
-        
-        "first_name": new_member,
-        "age": None,
-        "Lucky Numbers": []
+        "first_name": data["first_name"],
+        "age": data["age"],
+        "lucky_numbers": data.get("lucky_numbers", [])
     }
+
     jackson_family.add_member(new_member)
+
+    return jsonify(new_member), 201
+
+
+@app.route('/members/<int:id>', methods=['DELETE'])
+def delete_member(id):
+    member = jackson_family.get_member_by_id(id)
+    if not member:
+        return jsonify({"error": "Member not found"}), 404  
+    jackson_family.delete_member(id)  
+    return jsonify({"message": "Member deleted successfully"}), 200
+
 
 
 # this only runs if `$ python src/app.py` is executed
