@@ -16,9 +16,11 @@ jackson_family = FamilyStructure("Jackson")
 
 # Initial members
 initial_members = [
+
     {"first_name": "John", "age": 33, "lucky_numbers": [7, 13, 22]},
     {"first_name": "Jane", "age": 35, "lucky_numbers": [10, 14, 3]},
-    {"first_name": "Jimmy", "age": 5, "lucky_numbers": [1]}
+    {"first_name": "Jimmy", "age": 5, "lucky_numbers": [1]},
+    
 ]
 
 for member in initial_members:
@@ -39,12 +41,14 @@ def sitemap():
 
 
 
-@app.route('/members/<int:id>', methods=['GET'])
+@app.route('/member/<int:id>', methods=['GET'])  
 def get_member(id):
     member = jackson_family.get_member(id)  
     if not member:
         return jsonify({"error": "Member not found"}), 404
+
     return jsonify(member), 200
+
 
 
 
@@ -57,7 +61,7 @@ def get_all_members():
 
 
 
-@app.route('/members', methods=['POST'])
+@app.route('/member', methods=['POST'])  
 def new_member():
     data = request.get_json()
     if not data.get("first_name") or not data.get("age"):
@@ -66,30 +70,23 @@ def new_member():
     new_member = {
         "first_name": data["first_name"],
         "age": data["age"],
-        "lucky_numbers": data.get("lucky_numbers", [])
+        "lucky_numbers": data.get("lucky_numbers", []),
+        "id": data.get("id", jackson_family._generateId())  
     }
 
-    
-    added_member = jackson_family.add_member(new_member)
+    jackson_family.add_member(new_member)
 
-    return jsonify(added_member), 201
-
+    return jsonify(new_member), 200  
 
 
 
-@app.route('/members/<int:id>', methods=['DELETE'])
+@app.route('/member/<int:id>', methods=['DELETE'])
 def delete_member(id):
-    member = jackson_family.get_member(id)
-    if not member:
+    success = jackson_family.delete_member(id)
+    if not success:
         return jsonify({"error": "Member not found"}), 404  
 
-    jackson_family.delete_member(id)  
-    return jsonify({"message": "Member deleted successfully"}), 200
-
-
-
-
-
+    return jsonify({"done": True}), 200 
 
 
 

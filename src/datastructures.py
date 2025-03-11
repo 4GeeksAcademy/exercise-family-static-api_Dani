@@ -31,8 +31,6 @@ class FamilyStructure:
 
 
 
-
-
     
     def delete_member(self, id):
         for idx, member in enumerate(self._members):
