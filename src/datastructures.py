@@ -20,6 +20,7 @@ class FamilyStructure:
         return randint(0, 99999999)
 
     def add_member(self, member):
+        member['id'] = self._generateId()
         member['last_name'] = self.last_name
         self._members.append(member)
         return member
