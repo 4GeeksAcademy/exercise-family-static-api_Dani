@@ -29,9 +29,15 @@ for member in initial_members:
 def handle_invalid_usage(error):
     return jsonify(error.to_dict()), error.status_code
 
+
+
+
 @app.route('/')
 def sitemap():
     return generate_sitemap(app)
+
+
+
 
 @app.route('/members/<int:id>', methods=['GET'])
 def get_member(id):
@@ -39,6 +45,17 @@ def get_member(id):
     if not member:
         return jsonify({"error": "Member not found"}), 404
     return jsonify(member), 200
+
+
+
+
+@app.route('/members', methods=['GET'])
+def get_all_members():
+    members = jackson_family.get_all_members()
+    return jsonify(members), 200
+
+
+
 
 @app.route('/members', methods=['POST'])
 def new_member():
@@ -57,13 +74,24 @@ def new_member():
 
     return jsonify(added_member), 201
 
+
+
+
 @app.route('/members/<int:id>', methods=['DELETE'])
 def delete_member(id):
-    member = jackson_family.get_member(id)  
+    member = jackson_family.get_member(id)
     if not member:
         return jsonify({"error": "Member not found"}), 404  
+
     jackson_family.delete_member(id)  
     return jsonify({"message": "Member deleted successfully"}), 200
+
+
+
+
+
+
+
 
 if __name__ == '__main__':
     PORT = int(os.environ.get('PORT', 3000))
